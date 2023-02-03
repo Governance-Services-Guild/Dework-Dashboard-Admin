@@ -1,33 +1,25 @@
 import { ref } from "vue";
 import axios from "axios";
+import Papa from "papaparse";
 
 export async function useGetDework() {
   const jsonData = ref([]);
 
   const orgEl = "Governance-Services-Guild";
   const repoEl = "Dework-Dashboard-Admin";
+  const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
   async function readTextFile() {
     axios
       .get(
-        `https://raw.githubusercontent.com/${orgEl}/${repoEl}/main/src/assets/dework-files/governance-guild/Governance-Guild-tasks-list.csv`
+        `https://raw.githubusercontent.com/Governance-Services-Guild/Dework-Dashboard-Admin/main/src/assets/dework-files/governance-guild/Governance-Guild-tasks-list.csv`
       )
       .then((response) => {
-        const csvData = response.data;
-        const lines = csvData.split("\n");
-        const headers = lines[0].split(",");
-        jsonData.value = [];
-
-        for (let i = 1; i < lines.length; i++) {
-          const currentLine = lines[i].split(",");
-          let jsonObject = {};
-          for (let j = 0; j < headers.length; j++) {
-            jsonObject[headers[j]] = currentLine[j];
-          }
-          jsonData.value.push(jsonObject);
-        }
-
-        console.log(jsonData.value);
+        const csv = response.data;
+        var data = Papa.parse(csv);
+        console.log(data.data);
+        const filteredData = (data.data).filter((row) => row[4] === "IN_PROGRESS");
+        console.log(filteredData);
       })
       .catch((error) => {
         console.error(error);

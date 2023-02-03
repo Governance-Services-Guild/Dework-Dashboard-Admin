@@ -1,8 +1,9 @@
 <script setup>
-import { useGetDework } from '../composables/getdeworkexport'
+import { useGetDework } from "../composables/getdeworkexport";
 
-const { jsonData } = await useGetDework()
+const { jsonData } = await useGetDework();
 
+console.log("jsonData.value", jsonData.value);
 </script>
 
 <template>
