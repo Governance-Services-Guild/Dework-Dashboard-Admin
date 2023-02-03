@@ -1,3 +1,10 @@
+<script setup>
+import { useGetDework } from '../composables/getdeworkexport'
+
+const { jsonData } = await useGetDework()
+
+</script>
+
 <template>
   <main class="main">
     <div>
