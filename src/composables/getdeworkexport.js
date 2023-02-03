@@ -7,12 +7,11 @@ export async function useGetDework() {
 
   const orgEl = "Governance-Services-Guild";
   const repoEl = "Dework-Dashboard-Admin";
-  const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
   async function readTextFile() {
     axios
       .get(
-        `https://raw.githubusercontent.com/Governance-Services-Guild/Dework-Dashboard-Admin/main/src/assets/dework-files/governance-guild/Governance-Guild-tasks-list.csv`
+        `https://raw.githubusercontent.com/${orgEl}/${repoEl}/main/src/assets/dework-files/governance-guild/Governance-Guild-tasks-list.csv`
       )
       .then((response) => {
         const csv = response.data;
@@ -20,6 +19,7 @@ export async function useGetDework() {
         console.log(data.data);
         const filteredData = (data.data).filter((row) => row[4] === "IN_PROGRESS");
         console.log(filteredData);
+        jsonData.value = filteredData;
       })
       .catch((error) => {
         console.error(error);
