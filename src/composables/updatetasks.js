@@ -52,7 +52,6 @@ export async function useUpdateTasks(jsondata, project) {
         tags.value.push(newData.value[i][2]);
       }
     }
-    return assignees.value;
   }
 
   async function checkTasks() {
@@ -94,12 +93,15 @@ export async function useUpdateTasks(jsondata, project) {
       console.log(date1); // Sat Jan 15 2023 15:28:00 GMT+0530 (India Standard Time)
       console.log(date2);
       console.log("actArr", actArr);
+      
       try {
         loading.value = true;
 
         let updates = {
           title: title.value[i],
           link: link.value[i],
+          tags: tags.value[i],
+          assignees: assignees.value[i],
           storypoints: storypoints.value[i],
           status: status.value[i],
           group: project,
@@ -108,6 +110,22 @@ export async function useUpdateTasks(jsondata, project) {
           dework_completed_on: date2,
           updated_at: new Date(),
         };
+        if (status.value[i] == "BACKLOG") {
+          updates.backlog = "";
+          updates.backlog = new Date();
+        } else if (status.value[i] == "TODO") {
+          updates.to_do = "";
+          updates.to_do = new Date();
+        } else if (status.value[i] == "IN_PROGRESS") {
+          updates.in_progress = "";
+          updates.in_progress = new Date();
+        } else if (status.value[i] == "IN_REVIEW") {
+          updates.in_review = "";
+          updates.in_review = new Date();
+        } else if (status.value[i] == "DONE") {
+          updates.done = "";
+          updates.done = new Date();
+        }
 
         for (let j in prevLink.value) {
           if (prevLink.value[j] == link.value[i]) {
@@ -127,8 +145,9 @@ export async function useUpdateTasks(jsondata, project) {
   }
 
   await checkTasks();
-  status2.value = await sortData();
+  await sortData();
   await updateTasks();
+  status2.value = "done"
 
   return { status2 };
 }
