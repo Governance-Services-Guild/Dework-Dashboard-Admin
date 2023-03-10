@@ -144,9 +144,43 @@ export async function useUpdateTasks(jsondata, project) {
     }
   }
 
+  async function updateAssignees() {
+    let assignee = '';
+    let assigneest = []
+    let taskassignees = []
+    for (let i in link.value) {
+      taskassignees = assignees.value[i].split(",");
+      for (let k in taskassignees) {
+        assignee = taskassignees[k]
+        if (!assigneest.includes(assignee)) {
+          assigneest.push(assignee)
+        }
+      } 
+    }
+    
+    for (let j in assigneest) {
+      try {
+        loading.value = true;
+
+        let updates = {
+          name: assigneest[j]
+        };
+
+        let { error } = await supabase.from("assignees").upsert(updates);
+
+        if (error) throw error;
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        loading.value = false;
+      }
+    }
+  }
+
   await checkTasks();
   await sortData();
   await updateTasks();
+  await updateAssignees();
   status2.value = "done"
 
   return { status2 };
