@@ -6,7 +6,10 @@ export async function useUpdateTasks(jsondata, project) {
   const status2 = ref("");
 
   const loading = ref(true);
-  const task_id = ref([]);
+  const prevTagId = ref([]);
+  const prevTags = ref([]);
+  const prevNameId = ref([]);
+  const prevNames = ref([]);
   const updated_at = ref([]);
   const storypoints = ref([]);
   const group = ref([]);
@@ -80,6 +83,53 @@ export async function useUpdateTasks(jsondata, project) {
     }
   }
 
+  async function checkTags() {
+    try {
+      loading.value = true;
+
+      let { data, error, status } = await supabase
+        .from("tags")
+        .select(`id, tag`);
+
+      if (error && status !== 406) throw error;
+
+      if (data) {
+        for (let j in data) {
+          prevTagId.value.push(data[j].id);
+          prevTags.value.push(data[j].tag);
+        }
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      loading.value = false;
+    }
+    console.log("prevTags.value", prevTags.value);
+  }
+
+  async function checkAssignees() {
+    try {
+      loading.value = true;
+
+      let { data, error, status } = await supabase
+        .from("assignees")
+        .select(`id, name`);
+
+      if (error && status !== 406) throw error;
+
+      if (data) {
+        for (let j in data) {
+          prevNameId.value.push(data[j].id);
+          prevNames.value.push(data[j].name);
+        }
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function updateTasks() {
     let actArr = [];
     for (let i in link.value) {
@@ -93,7 +143,7 @@ export async function useUpdateTasks(jsondata, project) {
       console.log(date1); // Sat Jan 15 2023 15:28:00 GMT+0530 (India Standard Time)
       console.log(date2);
       console.log("actArr", actArr);
-      
+
       try {
         loading.value = true;
 
@@ -145,26 +195,33 @@ export async function useUpdateTasks(jsondata, project) {
   }
 
   async function updateAssignees() {
-    let assignee = '';
-    let assigneest = []
-    let taskassignees = []
+    let assignee = "";
+    let assigneest = [];
+    let taskassignees = [];
     for (let i in link.value) {
       taskassignees = assignees.value[i].split(",");
       for (let k in taskassignees) {
-        assignee = taskassignees[k]
+        assignee = taskassignees[k];
         if (!assigneest.includes(assignee)) {
-          assigneest.push(assignee)
+          assigneest.push(assignee);
         }
-      } 
+      }
     }
-    
+
     for (let j in assigneest) {
       try {
         loading.value = true;
 
         let updates = {
-          name: assigneest[j]
+          name: assigneest[j],
         };
+
+        for (let i in prevNames.value) {
+          if (prevNames.value[i] == assigneest[j]) {
+            updates.id = "";
+            updates.id = prevNameId.value[i];
+          }
+        }
 
         let { error } = await supabase.from("assignees").upsert(updates);
 
@@ -177,11 +234,54 @@ export async function useUpdateTasks(jsondata, project) {
     }
   }
 
+  async function updateTags() {
+    let tag = "";
+    let tagst = [];
+    let tasktags = [];
+    for (let i in link.value) {
+      tasktags = tags.value[i].split(",");
+      for (let k in tasktags) {
+        tag = tasktags[k];
+        if (!tagst.includes(tag)) {
+          tagst.push(tag);
+        }
+      }
+    }
+
+    for (let j in tagst) {
+      try {
+        loading.value = true;
+
+        let updates = {
+          tag: tagst[j],
+        };
+
+        for (let i in prevTags.value) {
+          if (prevTags.value[i] == tagst[j]) {
+            updates.id = "";
+            updates.id = prevTagId.value[i];
+          }
+        }
+
+        let { error } = await supabase.from("tags").upsert(updates);
+
+        if (error) throw error;
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        loading.value = false;
+      }
+    }
+  }
+
   await checkTasks();
+  await checkTags();
+  await checkAssignees();
   await sortData();
   await updateTasks();
+  await updateTags();
   await updateAssignees();
-  status2.value = "done"
+  status2.value = "done";
 
   return { status2 };
 }

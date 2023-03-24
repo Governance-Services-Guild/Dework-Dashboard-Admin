@@ -7,6 +7,7 @@ import { useUpdateTasks } from "../composables/updatetasks";
 const data = ref();
 const projectsR = ref([])
 const projectNames = ref([])
+const loading = ref(false)
 
 async function getProject() {
   const { projects } = await useGetProjects();
@@ -37,14 +38,17 @@ async function uploadData(uploadData, project) {
 }
 
 async function uploadProjectData(project) {
+  loading.value = true;
   await getData(project);
   await uploadData(data.value, project);
+  loading.value = false;
 }
 </script>
 
 <template>
   <main class="main">
-    <div>
+    <div v-if="loading" class="fade-in-out">Updating...</div>
+    <div v-else>
       <p>Home page</p>
       <button v-for="title in projectNames" :key="title" @click="getData(title)">Get {{title}} Data</button>
       <button v-for="title in projectNames" :key="title" @click="uploadProjectData(title)">Upload {{title}} Data</button>
@@ -55,5 +59,18 @@ async function uploadProjectData(project) {
 <style scoped>
 .main {
   padding: 0.5rem;
+}
+/* Define the animation */
+@keyframes fade-in-out {
+  0% { opacity: 0; } /* Start with 0% opacity */
+  50% { opacity: 1; } /* Fade in to 100% opacity */
+  100% { opacity: 0; } /* Fade out to 0% opacity */
+}
+
+/* Apply the animation to the text element */
+.fade-in-out {
+  margin: 1.0em;
+  font-size: 2.5em;
+  animation: fade-in-out 2s ease-in-out infinite; /* Use the defined animation */
 }
 </style>
