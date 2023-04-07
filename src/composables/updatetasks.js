@@ -134,15 +134,29 @@ export async function useUpdateTasks(jsondata, project) {
     let actArr = [];
     for (let i in link.value) {
       actArr = activities.value[i];
-      const dateRegEx = /[a-zA-Z]{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M/g;
+      const regex = /created on (\w+ \d+, \d+ \d+:\d+ [AP]M)(?:, Task completed on (\w+ \d+, \d+ \d+:\d+ [AP]M))?/;
+      
+      let matches = "";
+      if (actArr) {
+        matches = actArr.match(regex);
+      } else {continue;}
+
+      const creationDate = new Date(matches[1]);
+      const completionDate = matches[2] ? new Date(matches[2]) : null;
+      
+      console.log("actArr", actArr)
+      console.log("created",creationDate); // output: Sun Oct 09 2022 15:33:00 GMT+0530 (India Standard Time)
+      console.log("completed",completionDate);
+
+
+/*      const dateRegEx = /[a-zA-Z]{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M/g;
       // extract dates from the string using the regular expression
       const dates = actArr.match(dateRegEx);
       // convert the extracted date strings to Date objects
       const date1 = new Date(dates[0]);
       const date2 = new Date(dates[1]);
       console.log(date1); // Sat Jan 15 2023 15:28:00 GMT+0530 (India Standard Time)
-      console.log(date2);
-      console.log("actArr", actArr);
+      console.log(date2);*/
 
       try {
         loading.value = true;
@@ -156,8 +170,8 @@ export async function useUpdateTasks(jsondata, project) {
           status: status.value[i],
           group: project,
           due_date: due_date.value[i],
-          dework_created_on: date1,
-          dework_completed_on: date2,
+          dework_created_on: creationDate,
+          dework_completed_on: completionDate,
           updated_at: new Date(),
         };
         if (status.value[i] == "BACKLOG") {
@@ -199,7 +213,10 @@ export async function useUpdateTasks(jsondata, project) {
     let assigneest = [];
     let taskassignees = [];
     for (let i in link.value) {
-      taskassignees = assignees.value[i].split(",");
+      if (assignees.value[i]) {
+        taskassignees = assignees.value[i].split(",");
+      } else {continue;}
+      
       for (let k in taskassignees) {
         assignee = taskassignees[k];
         if (!assigneest.includes(assignee)) {
@@ -239,7 +256,10 @@ export async function useUpdateTasks(jsondata, project) {
     let tagst = [];
     let tasktags = [];
     for (let i in link.value) {
-      tasktags = tags.value[i].split(",");
+      if (tags.value[i]) {
+        tasktags = tags.value[i].split(",");
+      } else {continue;}
+      
       for (let k in tasktags) {
         tag = tasktags[k];
         if (!tagst.includes(tag)) {

@@ -29,7 +29,7 @@ export async function useGetDework(project) {
   async function readTextFile() {
     await axios
       .get(
-        `https://raw.githubusercontent.com/${orgEl}/${repoEl}/main/src/assets/dework-files/${project}/${deworkFiles.value[0].name}`
+        `https://raw.githubusercontent.com/${orgEl}/${repoEl}/main/src/assets/dework-files/${project}/${deworkFiles.value[deworkFiles.value.length-1].name}`
       )
       .then((response) => {
         const csv = response.data;
