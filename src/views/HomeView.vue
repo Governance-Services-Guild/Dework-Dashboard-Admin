@@ -43,6 +43,8 @@ async function uploadProjectData(project) {
   await uploadData(data.value, project);
   loading.value = false;
 }
+
+
 </script>
 
 <template>

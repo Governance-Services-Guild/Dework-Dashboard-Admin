@@ -7,6 +7,10 @@ export const useStore = defineStore("test", {
     group: "",
     project: "",
     wallet: "",
+    tasks: [],
+    tags: [],
+    assignees: [],
+    sortedData: [],
   }),
   actions: {
     changeName(value) {
@@ -23,6 +27,18 @@ export const useStore = defineStore("test", {
     },
     changeWallet(value) {
       this.wallet = value;
+    },
+    changeTasks(value) {
+      this.tasks = value;
+    },
+    changeTags(value) {
+      this.tags = value;
+    },
+    changeAssignees(value) {
+      this.assignees = value;
+    },
+    changeSortedData(value) {
+      this.sortedData = value;
     },
   },
 });
