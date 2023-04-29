@@ -1,3 +1,4 @@
+/* global process */
 import axios from 'axios';
 
 export async function fetchWorkspaceTasks() {
@@ -57,9 +58,10 @@ export async function fetchWorkspaceTasks() {
     }
   `;
 
+  const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': import.meta.env.VITE_DEWORK_AUTH,
+    'Authorization': isNode ? process.env.VITE_DEWORK_AUTH : import.meta.env.VITE_DEWORK_AUTH, 
   };
 
   try {
