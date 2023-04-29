@@ -131,9 +131,8 @@ export async function useSortData() {
     }
   }
 
-  async function buildAssignees() {
+  async function buildAssignees2() {
     // still busy building and testing
-    let name = "";
     //sorted_data.value = store.sortedData
     for (let i in store.assignees) {
       try {
@@ -146,6 +145,7 @@ export async function useSortData() {
         if (error && status !== 406) throw error;
         if (data) {
           for (let j in data) {
+            console.log("Testing j", data[j], store.assignees[i])
             sorted_data.value[store.assignees[i]].storypoints =
               sorted_data.value[store.assignees[i]].storypoints +
               data[j].storypoints;
@@ -164,6 +164,43 @@ export async function useSortData() {
         loading.value = false;
       }
     }
+    console.log("sorted_data.value", sorted_data.value, store.tags);
+  }
+
+  async function buildAssignees() {
+    try {
+      loading.value = true;
+  
+      // Fetch all data from the "tasks" table
+      let { data, error, status } = await supabase.from("tasks").select();
+  
+      if (error && status !== 406) throw error;
+  
+      for (let i in store.assignees) {
+        let filteredData = data.filter(task =>
+          (task.assignees.split(',')).includes(store.assignees[i])
+        );
+  
+        for (let j in filteredData) {
+          console.log("Testing j", filteredData[j], store.assignees[i]);
+          sorted_data.value[store.assignees[i]].storypoints =
+            sorted_data.value[store.assignees[i]].storypoints +
+            filteredData[j].storypoints;
+          sorted_data.value[store.assignees[i]].tasks =
+            sorted_data.value[store.assignees[i]].tasks + 1;
+          if (filteredData[j].status == "DONE") {
+            sorted_data.value[store.assignees[i]].tasks_done =
+              sorted_data.value[store.assignees[i]].tasks_done + 1;
+          }
+        }
+        console.log("store.assignees[i]", store.assignees[i], filteredData);
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      loading.value = false;
+    }
+  
     console.log("sorted_data.value", sorted_data.value, store.tags);
   }
 
