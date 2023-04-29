@@ -3,7 +3,9 @@ import { ref, onMounted } from "vue";
 import { useStore } from "../store/index";
 import { useGetData } from "../composables/usegetdata";
 import { useSortData } from "../composables/usesortdata";
+import { fetchWorkspaceTasks } from "../api/workspace";
 
+const deworkdata = ref();
 const taskData = ref([]);
 const sortedData2 = ref([]);
 const sortedData = ref({});
@@ -40,8 +42,11 @@ onMounted(async () => {
 });*/
 
 async function getData() {
-  const { all_tasks } = await useGetData();
-  taskData.value = all_tasks.value;
+  const deworkData = await fetchWorkspaceTasks();
+  console.log("deworkData", deworkData.data);
+  deworkdata.value = deworkData.data.getWorkspace.tasks;
+  //const { all_tasks } = await useGetData();
+  //taskData.value = all_tasks.value;
   //console.log("test", taskData.value);
   const { sortedData } = await getStats();
   chartData.value = sortedData.value;
@@ -58,8 +63,8 @@ async function statsButton() {
   navigator.clipboard.writeText(str);*/
 }
 
-async function getStats() {
-  const { sorted_data } = await useSortData();
+async function getStats(deworkdata) {
+  const { sorted_data } = await useSortData(deworkdata);
   sortedData.value = sorted_data.value;
   console.log("sortedData.value", sortedData.value);
   if (localStorage.getItem("alltasks") == null) {

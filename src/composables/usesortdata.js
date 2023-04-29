@@ -1,13 +1,14 @@
 // mouse.js
 import { ref } from "vue";
-import { useStore } from "../store/index";
+//import { useStore } from "../store/index";
 import { supabase } from "../supabase";
+import { useGetData } from "../composables/usegetdata";
 
 // by convention, composable function names start with "use"
 export async function useSortData() {
-  const store = useStore();
+  //const store = useStore();
   const loading = ref(true);
-
+  const { all_tasks } = await useGetData();
   const completedTasks = ref([]);
   let done = ref(0);
   let inprogress = ref(0);
@@ -34,10 +35,10 @@ export async function useSortData() {
     done.value = 0;
     storypoints.value = 0;
     // still busy building and testing
-    console.log("store.tasks", store.tasks);
-    for (let i in store.tasks) {
-      storypoints.value = storypoints.value + store.tasks[i].storypoints;
-      switch (store.tasks[i].status) {
+    console.log("all_tasks.value", all_tasks.value);
+    for (let i in all_tasks.value) {
+      storypoints.value = storypoints.value + all_tasks.value[i].storypoints;
+      switch (all_tasks.value[i].status) {
         case "DONE":
           done.value++;
           break;
@@ -57,7 +58,7 @@ export async function useSortData() {
           console.log("Nothing happened");
           break;
       }
-      console.log(store.tasks[i].status, done.value);
+      console.log(all_tasks.value[i].status, done.value);
     }
     console.log("storypoints", storypoints.value, done.value, todo.value);
     sorted_data.value["tasks"]["backlog"] = backlog.value;
@@ -65,7 +66,7 @@ export async function useSortData() {
     sorted_data.value["tasks"]["in_progress"] = inprogress.value;
     sorted_data.value["tasks"]["in_review"] = inreview.value;
     sorted_data.value["tasks"]["done"] = done.value;
-    //sorted_data.value = store.tasks
+    //sorted_data.value = all_tasks.value
   }
 
   async function getAssignees() {
@@ -86,8 +87,8 @@ export async function useSortData() {
           sorted_data.value[data[i].name]["tasks_done"] = 0;
         }
         console.log(assignees.value, "data", data);
-        store.changeAssignees(assignees.value);
-        store.changeSortedData(sorted_data.value);
+        //store.changeAssignees(assignees.value);
+        //store.changeSortedData(sorted_data.value);
       }
     } catch (error) {
       alert(error.message);
@@ -121,8 +122,8 @@ export async function useSortData() {
           }
         }
         console.log(tags.value, "data", data);
-        store.changeTags(tags.value);
-        store.changeSortedData(sorted_data.value);
+        //store.changeTags(tags.value);
+        //store.changeSortedData(sorted_data.value);
       }
     } catch (error) {
       alert(error.message);
@@ -134,29 +135,29 @@ export async function useSortData() {
   async function buildAssignees2() {
     // still busy building and testing
     //sorted_data.value = store.sortedData
-    for (let i in store.assignees) {
+    for (let i in assignees.value) {
       try {
         loading.value = true;
         let { data, error, status } = await supabase
           .from("tasks")
           .select()
-          .ilike("assignees", `%${store.assignees[i]}%`);
+          .ilike("assignees", `%${assignees.value[i]}%`);
 
         if (error && status !== 406) throw error;
         if (data) {
           for (let j in data) {
-            console.log("Testing j", data[j], store.assignees[i])
-            sorted_data.value[store.assignees[i]].storypoints =
-              sorted_data.value[store.assignees[i]].storypoints +
+            console.log("Testing j", data[j], assignees.value[i]);
+            sorted_data.value[assignees.value[i]].storypoints =
+              sorted_data.value[assignees.value[i]].storypoints +
               data[j].storypoints;
-            sorted_data.value[store.assignees[i]].tasks =
-              sorted_data.value[store.assignees[i]].tasks + 1;
+            sorted_data.value[assignees.value[i]].tasks =
+              sorted_data.value[assignees.value[i]].tasks + 1;
             if (data[j].status == "DONE") {
-              sorted_data.value[store.assignees[i]].tasks_done =
-                sorted_data.value[store.assignees[i]].tasks_done + 1;
+              sorted_data.value[assignees.value[i]].tasks_done =
+                sorted_data.value[assignees.value[i]].tasks_done + 1;
             }
           }
-          console.log("store.assignees[i]", store.assignees[i], data);
+          console.log("assignees.value[i]", assignees.value[i], data);
         }
       } catch (error) {
         alert(error.message);
@@ -164,90 +165,89 @@ export async function useSortData() {
         loading.value = false;
       }
     }
-    console.log("sorted_data.value", sorted_data.value, store.tags);
+    console.log("sorted_data.value", sorted_data.value);
   }
 
   async function buildAssignees() {
     try {
       loading.value = true;
-  
+
       // Fetch all data from the "tasks" table
       let { data, error, status } = await supabase.from("tasks").select();
-  
+
       if (error && status !== 406) throw error;
-  
-      for (let i in store.assignees) {
-        let filteredData = data.filter(task =>
-          (task.assignees.split(',')).includes(store.assignees[i])
+      console.log("data assignees.value", data, assignees.value);
+      for (let i in assignees.value) {
+        let filteredData = data.filter((task) =>
+          task.assignees.split(",").includes(assignees.value[i])
         );
-  
+
         for (let j in filteredData) {
-          console.log("Testing j", filteredData[j], store.assignees[i]);
-          sorted_data.value[store.assignees[i]].storypoints =
-            sorted_data.value[store.assignees[i]].storypoints +
+          sorted_data.value[assignees.value[i]].storypoints =
+            sorted_data.value[assignees.value[i]].storypoints +
             filteredData[j].storypoints;
-          sorted_data.value[store.assignees[i]].tasks =
-            sorted_data.value[store.assignees[i]].tasks + 1;
+          sorted_data.value[assignees.value[i]].tasks =
+            sorted_data.value[assignees.value[i]].tasks + 1;
           if (filteredData[j].status == "DONE") {
-            sorted_data.value[store.assignees[i]].tasks_done =
-              sorted_data.value[store.assignees[i]].tasks_done + 1;
+            sorted_data.value[assignees.value[i]].tasks_done =
+              sorted_data.value[assignees.value[i]].tasks_done + 1;
           }
         }
-        console.log("store.assignees[i]", store.assignees[i], filteredData);
+        console.log("assignees.value[i]", assignees.value[i], filteredData);
       }
     } catch (error) {
       alert(error.message);
     } finally {
       loading.value = false;
     }
-  
-    console.log("sorted_data.value", sorted_data.value, store.tags);
+
+    console.log("sorted_data.value", sorted_data.value, tags.value);
   }
 
   async function buildTags() {
     // still busy building and testing
     let name = "";
     //sorted_data.value = store.sortedData
-    for (let i in store.tags) {
+    for (let i in tags.value) {
       try {
         loading.value = true;
         let { data, error, status } = await supabase
           .from("tasks")
           .select()
-          .ilike("tags", `%${store.tags[i]}%`);
+          .ilike("tags", `%${tags.value[i]}%`);
 
         if (error && status !== 406) throw error;
         if (data) {
           for (let j in data) {
-            sorted_data.value["taskTypes"][store.tags[i]].storypoints =
-              sorted_data.value["taskTypes"][store.tags[i]].storypoints +
+            sorted_data.value["taskTypes"][tags.value[i]].storypoints =
+              sorted_data.value["taskTypes"][tags.value[i]].storypoints +
               data[j].storypoints;
-            sorted_data.value["taskTypes"][store.tags[i]].tasks =
-              sorted_data.value["taskTypes"][store.tags[i]].tasks + 1;
+            sorted_data.value["taskTypes"][tags.value[i]].tasks =
+              sorted_data.value["taskTypes"][tags.value[i]].tasks + 1;
             if (data[j].status == "DONE") {
-              sorted_data.value["taskTypes"][store.tags[i]].tasks_done =
-                sorted_data.value["taskTypes"][store.tags[i]].tasks_done + 1;
+              sorted_data.value["taskTypes"][tags.value[i]].tasks_done =
+                sorted_data.value["taskTypes"][tags.value[i]].tasks_done + 1;
             }
             if (data[j].status == "BACKLOG") {
-              sorted_data.value["taskTypes"][store.tags[i]].tasks_backlog =
-                sorted_data.value["taskTypes"][store.tags[i]].tasks_backlog + 1;
+              sorted_data.value["taskTypes"][tags.value[i]].tasks_backlog =
+                sorted_data.value["taskTypes"][tags.value[i]].tasks_backlog + 1;
             }
             if (data[j].status == "TODO") {
-              sorted_data.value["taskTypes"][store.tags[i]].tasks_todo =
-                sorted_data.value["taskTypes"][store.tags[i]].tasks_todo + 1;
+              sorted_data.value["taskTypes"][tags.value[i]].tasks_todo =
+                sorted_data.value["taskTypes"][tags.value[i]].tasks_todo + 1;
             }
             if (data[j].status == "IN_PROGRESS") {
-              sorted_data.value["taskTypes"][store.tags[i]].tasks_in_progress =
-                sorted_data.value["taskTypes"][store.tags[i]]
+              sorted_data.value["taskTypes"][tags.value[i]].tasks_in_progress =
+                sorted_data.value["taskTypes"][tags.value[i]]
                   .tasks_in_progress + 1;
             }
             if (data[j].status == "IN_REVIEW") {
-              sorted_data.value["taskTypes"][store.tags[i]].tasks_in_review =
-                sorted_data.value["taskTypes"][store.tags[i]].tasks_in_review +
+              sorted_data.value["taskTypes"][tags.value[i]].tasks_in_review =
+                sorted_data.value["taskTypes"][tags.value[i]].tasks_in_review +
                 1;
             }
           }
-          console.log("store.tags[i]", store.tags[i], data);
+          console.log("tags.value[i]", tags.value[i], data);
         }
       } catch (error) {
         alert(error.message);
@@ -255,7 +255,7 @@ export async function useSortData() {
         loading.value = false;
       }
     }
-    console.log("sorted_data.value", sorted_data.value, store.tags);
+    console.log("sorted_data.value", sorted_data.value, tags.value);
   }
 
   async function checkTags() {
