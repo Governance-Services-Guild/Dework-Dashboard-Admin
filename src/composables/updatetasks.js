@@ -1,5 +1,4 @@
 import { ref } from "vue";
-import { useStore } from "../store/index";
 import { supabase } from "../supabase";
 
 export async function useUpdateTasks(project, deworkdata) {
@@ -41,7 +40,6 @@ export async function useUpdateTasks(project, deworkdata) {
 
   const newData = ref();
   const deworkData = ref();
-  const store = useStore();
 
   async function sortData() {
     deworkData.value = deworkdata;
