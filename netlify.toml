@@ -1,5 +1,5 @@
 [build]
   functions = "functions"
-
 [functions]
-  node_bundler = "zisi"
+
+    [functions.es_module]
