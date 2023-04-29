@@ -1,7 +1,7 @@
 // import axios from 'axios'
-import { supabase } from "../supabase";
-import { fetchWorkspaceTasks } from "../api/workspace";
-import { useUpdateTasks } from "../composables/updatetasks";
+import { supabase } from "../src/supabase";
+import { fetchWorkspaceTasks } from "../src/api/workspace";
+import { useUpdateTasks } from "../src/composables/updatetasks";
 
 const deworkdata = {};
 const project = 'governance-guild';
