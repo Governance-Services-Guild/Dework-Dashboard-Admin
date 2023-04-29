@@ -1,5 +1,4 @@
 // import axios from 'axios'
-import { supabase } from "../supabase";
 import { fetchWorkspaceTasks } from "../api/workspace";
 import { useUpdateTasks } from "../composables/updatetasks";
 
