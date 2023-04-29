@@ -1,9 +1,7 @@
 name: Trigger API
 
 on:
-  push: # Triggers the workflow on push events
-    branches:
-      - main # Replace with your default branch name
+  workflow_dispatch:
 
 jobs:
   trigger-api:
@@ -12,4 +10,4 @@ jobs:
     steps:
       - name: Trigger API
         run: |
-          curl -X POST "https://your-netlify-site-url/.netlify/functions/updateDatabase"
+          curl -X POST "https://gg-dework-admin.netlify.app/.netlify/functions/updateDatabase" 
