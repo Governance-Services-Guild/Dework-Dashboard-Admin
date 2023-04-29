@@ -16,7 +16,7 @@ export async function useGetData() {
       loading.value = true;
       let { data, error, status } = await supabase
         .from("tasks")
-        .select(`task_id, storypoints, title, status, link, backlog, to_do, in_progress, in_review, done, dework_created_on, dework_completed_on, due_date, assignees, tags`)
+        .select(`task_id, storypoints, title, status, link, backlog, to_do, in_progress, in_review, done, dework_created_on, dework_completed_on, due_date, assignees, tags, description`)
         .eq("group", "governance-guild");
 
       if (error && status !== 406) throw error;

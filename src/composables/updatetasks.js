@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { useStore } from "../store/index";
 import { supabase } from "../supabase";
 
-export async function useUpdateTasks(jsondata, project) {
+export async function useUpdateTasks(project, deworkdata) {
   const status2 = ref("");
 
   const loading = ref(true);
@@ -26,6 +26,10 @@ export async function useUpdateTasks(jsondata, project) {
 
   const due_date = ref([]);
   const activities = ref([]);
+  const description = ref([]);
+  const creator = ref([]);
+  const created_at = ref([]);
+  const completed_at = ref([]);
 
   const tags = ref([]);
   const assignees = ref([]);
@@ -36,12 +40,36 @@ export async function useUpdateTasks(jsondata, project) {
   const prevLink = ref([]);
 
   const newData = ref();
+  const deworkData = ref();
   const store = useStore();
 
   async function sortData() {
-    newData.value = jsondata;
-    console.log("newData", newData.value);
-    for (let i in newData.value) {
+    deworkData.value = deworkdata;
+    //newData.value = jsondata;
+    console.log("deworkData", deworkData.value);
+    for (let j in deworkData.value) {
+      console.log("deworkData", deworkData.value[j].name);
+      title.value.push(deworkData.value[j].name);
+      link.value.push(deworkData.value[j].id);
+      storypoints.value.push(deworkData.value[j].storyPoints);
+      status.value.push(deworkData.value[j].status);
+      description.value.push(deworkData.value[j].description);
+      creator.value.push(deworkData.value[j].creator.username);
+      due_date.value.push(deworkData.value[j].dueDate);
+      created_at.value.push(deworkData.value[j].createdAt);
+      completed_at.value.push(deworkData.value[j].doneAt);
+      let newAssignees = [];
+      for (let k in deworkData.value[j].assignees) {
+        newAssignees.push(deworkData.value[j].assignees[k].username);
+      }
+      assignees.value.push(newAssignees.join(","));
+      let newTags = [];
+      for (let l in deworkData.value[j].tags) {
+        newTags.push(deworkData.value[j].tags[l].label);
+      }
+      tags.value.push(newTags.join(","));
+    }
+    /*for (let i in newData.value) {
       if (i > 0) {
         title.value.push(newData.value[i][0]);
         link.value.push(newData.value[i][1]);
@@ -54,7 +82,7 @@ export async function useUpdateTasks(jsondata, project) {
         assignees.value.push(newData.value[i][5]);
         tags.value.push(newData.value[i][2]);
       }
-    }
+    }*/
   }
 
   async function checkTasks() {
@@ -131,9 +159,9 @@ export async function useUpdateTasks(jsondata, project) {
   }
 
   async function updateTasks() {
-    let actArr = [];
+    //let actArr = [];
     for (let i in link.value) {
-      actArr = activities.value[i];
+      /*actArr = activities.value[i];
       const regex = /created on (\w+ \d+, \d+ \d+:\d+ [AP]M)(?:, Task completed on (\w+ \d+, \d+ \d+:\d+ [AP]M))?/;
       
       let matches = "";
@@ -146,10 +174,9 @@ export async function useUpdateTasks(jsondata, project) {
       
       console.log("actArr", actArr)
       console.log("created",creationDate); // output: Sun Oct 09 2022 15:33:00 GMT+0530 (India Standard Time)
-      console.log("completed",completionDate);
+      console.log("completed",completionDate);*/
 
-
-/*      const dateRegEx = /[a-zA-Z]{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M/g;
+      /*      const dateRegEx = /[a-zA-Z]{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M/g;
       // extract dates from the string using the regular expression
       const dates = actArr.match(dateRegEx);
       // convert the extracted date strings to Date objects
@@ -160,6 +187,7 @@ export async function useUpdateTasks(jsondata, project) {
 
       try {
         loading.value = true;
+        console.log("tags.value[i]", tags.value[i]);
 
         let updates = {
           title: title.value[i],
@@ -167,11 +195,13 @@ export async function useUpdateTasks(jsondata, project) {
           tags: tags.value[i],
           assignees: assignees.value[i],
           storypoints: storypoints.value[i],
+          description: description.value[i],
+          creator: creator.value[i],
           status: status.value[i],
           group: project,
           due_date: due_date.value[i],
-          dework_created_on: creationDate,
-          dework_completed_on: completionDate,
+          dework_created_on: created_at.value[i],
+          dework_completed_on: completed_at.value[i],
           updated_at: new Date(),
         };
         if (status.value[i] == "BACKLOG") {
@@ -215,8 +245,10 @@ export async function useUpdateTasks(jsondata, project) {
     for (let i in link.value) {
       if (assignees.value[i]) {
         taskassignees = assignees.value[i].split(",");
-      } else {continue;}
-      
+      } else {
+        continue;
+      }
+
       for (let k in taskassignees) {
         assignee = taskassignees[k];
         if (!assigneest.includes(assignee)) {
@@ -258,8 +290,10 @@ export async function useUpdateTasks(jsondata, project) {
     for (let i in link.value) {
       if (tags.value[i]) {
         tasktags = tags.value[i].split(",");
-      } else {continue;}
-      
+      } else {
+        continue;
+      }
+
       for (let k in tasktags) {
         tag = tasktags[k];
         if (!tagst.includes(tag)) {
