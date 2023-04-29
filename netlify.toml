@@ -1,5 +1,5 @@
 [build]
   functions = "functions"
 [functions]
-
-    [functions.es_module]
+  node_bundler = "esbuild"
+  es_module = "true"
