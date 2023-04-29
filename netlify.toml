@@ -1,9 +1,5 @@
 [build]
-  functions = "functions"
-[functions]
+	functions = "netlify/functions"
 
-    [functions.es_module]
-    external_node_modules = [
-      "module-one",
-      "module-two"
-    ]
+[functions]
+        node_bundler = "esbuild"
