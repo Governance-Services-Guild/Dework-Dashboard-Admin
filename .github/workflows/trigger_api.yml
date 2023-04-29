@@ -1,7 +1,10 @@
 name: Trigger API
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
+  schedule:
+  # 22h00 UTC Tue and Sat – https://crontab.guru
+  - cron: 0 12 * * 6
 
 jobs:
   trigger-api:
