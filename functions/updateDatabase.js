@@ -2,7 +2,7 @@
 import { supabase } from "../src/supabase";
 import { fetchWorkspaceTasks } from "../src/api/workspace";
 import { useUpdateTasks } from "../src/composables/updatetasks";
-import { useSortData } from "..src/composables/usesortdata";
+import { useSortData } from "../src/composables/usesortdata";
 
 const deworkdata = {};
 const project = "governance-guild";
