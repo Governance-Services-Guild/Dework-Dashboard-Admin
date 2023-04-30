@@ -1,22 +1,16 @@
-// mouse.js
 import { ref } from "vue";
-//import { useStore } from "../store/index";
 import { supabase } from "../supabase";
 import { useGetData } from "../composables/usegetdata";
 
-// by convention, composable function names start with "use"
 export async function useSortData() {
-  //const store = useStore();
   const loading = ref(true);
   const { all_tasks } = await useGetData();
-  const completedTasks = ref([]);
   let done = ref(0);
   let inprogress = ref(0);
   let todo = ref(0);
   let backlog = ref(0);
   let inreview = ref(0);
   let storypoints = ref(0);
-  const completedTasktypes = ref([]);
   const sorted_data = ref({});
   const assignees = ref([]);
   const tags = ref([]);
@@ -87,8 +81,6 @@ export async function useSortData() {
           sorted_data.value[data[i].name]["tasks_done"] = 0;
         }
         console.log(assignees.value, "data", data);
-        //store.changeAssignees(assignees.value);
-        //store.changeSortedData(sorted_data.value);
       }
     } catch (error) {
       alert(error.message);
@@ -122,50 +114,12 @@ export async function useSortData() {
           }
         }
         console.log(tags.value, "data", data);
-        //store.changeTags(tags.value);
-        //store.changeSortedData(sorted_data.value);
       }
     } catch (error) {
       alert(error.message);
     } finally {
       loading.value = false;
     }
-  }
-
-  async function buildAssignees2() {
-    // still busy building and testing
-    //sorted_data.value = store.sortedData
-    for (let i in assignees.value) {
-      try {
-        loading.value = true;
-        let { data, error, status } = await supabase
-          .from("tasks")
-          .select()
-          .ilike("assignees", `%${assignees.value[i]}%`);
-
-        if (error && status !== 406) throw error;
-        if (data) {
-          for (let j in data) {
-            console.log("Testing j", data[j], assignees.value[i]);
-            sorted_data.value[assignees.value[i]].storypoints =
-              sorted_data.value[assignees.value[i]].storypoints +
-              data[j].storypoints;
-            sorted_data.value[assignees.value[i]].tasks =
-              sorted_data.value[assignees.value[i]].tasks + 1;
-            if (data[j].status == "DONE") {
-              sorted_data.value[assignees.value[i]].tasks_done =
-                sorted_data.value[assignees.value[i]].tasks_done + 1;
-            }
-          }
-          console.log("assignees.value[i]", assignees.value[i], data);
-        }
-      } catch (error) {
-        alert(error.message);
-      } finally {
-        loading.value = false;
-      }
-    }
-    console.log("sorted_data.value", sorted_data.value);
   }
 
   async function buildAssignees() {
