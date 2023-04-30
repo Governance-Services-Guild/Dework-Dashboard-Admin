@@ -1,9 +1,9 @@
 import { ref } from "vue";
 import { supabase } from "../supabase";
+import { useSortData } from "../composables/usesortdata";
 
 export async function useUpdateTasks(project, deworkdata) {
   const status2 = ref("");
-
   const loading = ref(true);
   const prevTagId = ref([]);
   const prevTags = ref([]);
@@ -11,25 +11,15 @@ export async function useUpdateTasks(project, deworkdata) {
   const prevNames = ref([]);
   const updated_at = ref([]);
   const storypoints = ref([]);
-  const group = ref([]);
   const title = ref([]);
   const status = ref([]);
   const link = ref([]);
-  const backlog = ref([]);
-  const to_do = ref([]);
-  const in_progress = ref([]);
-  const in_review = ref([]);
-  const done = ref([]);
-  const dework_created_on = ref([]);
-  const dework_completed_on = ref([]);
-
   const due_date = ref([]);
-  const activities = ref([]);
   const description = ref([]);
   const creator = ref([]);
   const created_at = ref([]);
   const completed_at = ref([]);
-
+  
   const tags = ref([]);
   const assignees = ref([]);
 
@@ -37,8 +27,6 @@ export async function useUpdateTasks(project, deworkdata) {
   const prevTaskId = ref([]);
   const prevTitle = ref([]);
   const prevLink = ref([]);
-
-  const newData = ref();
   const deworkData = ref();
 
   async function sortData() {
@@ -67,20 +55,6 @@ export async function useUpdateTasks(project, deworkdata) {
       }
       tags.value.push(newTags.join(","));
     }
-    /*for (let i in newData.value) {
-      if (i > 0) {
-        title.value.push(newData.value[i][0]);
-        link.value.push(newData.value[i][1]);
-        storypoints.value.push(
-          newData.value[i][3] > 0 ? newData.value[i][3] : 0.0
-        );
-        status.value.push(newData.value[i][4]);
-        due_date.value.push(newData.value[i][8]);
-        activities.value.push(newData.value[i][9]);
-        assignees.value.push(newData.value[i][5]);
-        tags.value.push(newData.value[i][2]);
-      }
-    }*/
   }
 
   async function checkTasks() {
@@ -157,32 +131,7 @@ export async function useUpdateTasks(project, deworkdata) {
   }
 
   async function updateTasks() {
-    //let actArr = [];
     for (let i in link.value) {
-      /*actArr = activities.value[i];
-      const regex = /created on (\w+ \d+, \d+ \d+:\d+ [AP]M)(?:, Task completed on (\w+ \d+, \d+ \d+:\d+ [AP]M))?/;
-      
-      let matches = "";
-      if (actArr) {
-        matches = actArr.match(regex);
-      } else {continue;}
-
-      const creationDate = new Date(matches[1]);
-      const completionDate = matches[2] ? new Date(matches[2]) : null;
-      
-      console.log("actArr", actArr)
-      console.log("created",creationDate); // output: Sun Oct 09 2022 15:33:00 GMT+0530 (India Standard Time)
-      console.log("completed",completionDate);*/
-
-      /*      const dateRegEx = /[a-zA-Z]{3} \d{1,2}, \d{4} \d{1,2}:\d{2} [AP]M/g;
-      // extract dates from the string using the regular expression
-      const dates = actArr.match(dateRegEx);
-      // convert the extracted date strings to Date objects
-      const date1 = new Date(dates[0]);
-      const date2 = new Date(dates[1]);
-      console.log(date1); // Sat Jan 15 2023 15:28:00 GMT+0530 (India Standard Time)
-      console.log(date2);*/
-
       try {
         loading.value = true;
         console.log("tags.value[i]", tags.value[i]);
@@ -333,6 +282,8 @@ export async function useUpdateTasks(project, deworkdata) {
   await updateTasks();
   await updateTags();
   await updateAssignees();
+  const { sorted_data } = await useSortData();
+  console.log(sorted_data.value);
   status2.value = "done";
 
   return { status2 };
