@@ -5,7 +5,7 @@ import { useUpdateTasks } from "../src/composables/updatetasks";
 import { useSortData } from "..src//composables/usesortdata";
 
 const deworkdata = {};
-const project = 'governance-guild';
+const project = "governance-guild";
 
 async function uploadData(project) {
   const deworkData = await fetchWorkspaceTasks();
@@ -13,7 +13,6 @@ async function uploadData(project) {
   deworkdata.value = deworkData.data.getWorkspace.tasks;
   const { status2 } = await useUpdateTasks(project, deworkdata.value);
   console.log("Upload", status2.value);
-  
 }
 
 export async function handler(event, context) {
@@ -26,7 +25,9 @@ export async function handler(event, context) {
     // If you don't have any specific data to return, you can return a simple success message
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Data uploaded successfully" }),
+      body: JSON.stringify({
+        message: `Data uploaded successfully , ${sorted_data.value}`,
+      }),
     };
   } catch (error) {
     return {
