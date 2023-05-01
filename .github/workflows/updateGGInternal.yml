@@ -1,4 +1,4 @@
-name: Trigger API
+name: Trigger GG Internal API
 
 on:
   workflow_dispatch:
@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Trigger API
         run: |
-          curl -X POST "https://gg-dework-admin.netlify.app/.netlify/functions/updateDatabase" 
+          curl -X POST "https://gg-dework-admin.netlify.app/.netlify/functions/updateGGInternal" 
