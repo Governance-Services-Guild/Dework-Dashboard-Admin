@@ -1,6 +1,5 @@
 /* global process */
 // import axios from 'axios'
-import { supabase } from "../src/supabase";
 import { fetchWorkspaceTasks } from "../src/api/workspace";
 import { useUpdateTasks } from "../src/composables/updatetasks";
 
