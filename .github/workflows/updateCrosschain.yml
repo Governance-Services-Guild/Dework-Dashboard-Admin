@@ -1,4 +1,4 @@
-name: Trigger API
+name: Trigger Cross Lead Gen API
 
 on:
   workflow_dispatch:
