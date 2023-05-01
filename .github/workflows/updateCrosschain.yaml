@@ -1,0 +1,16 @@
+name: Trigger API
+
+on:
+  workflow_dispatch:
+  schedule:
+  # 22h00 UTC Tue and Sat – https://crontab.guru
+  - cron: 5 12 * * 6,2
+
+jobs:
+  trigger-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger API
+        run: |
+          curl -X POST "https://gg-dework-admin.netlify.app/.netlify/functions/updateCrossLeadGen" 
