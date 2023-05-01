@@ -1,8 +1,8 @@
 import { ref } from "vue";
-import { supabase } from "../supabase";
+import { createSupabaseClient } from "../supabase";
 import { useSortData } from "../composables/usesortdata";
 
-export async function useUpdateTasks(project, deworkdata) {
+export async function useUpdateTasks(project, deworkdata, role) {
   const status2 = ref("");
   const loading = ref(true);
   const prevTagId = ref([]);
@@ -20,6 +20,8 @@ export async function useUpdateTasks(project, deworkdata) {
   const created_at = ref([]);
   const completed_at = ref([]);
   
+  const supabaseWithRole = createSupabaseClient(role);
+
   const tags = ref([]);
   const assignees = ref([]);
 
@@ -61,7 +63,7 @@ export async function useUpdateTasks(project, deworkdata) {
     try {
       loading.value = true;
 
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("tasks")
         .select(`task_id, title, group, status, link`);
 
@@ -87,7 +89,7 @@ export async function useUpdateTasks(project, deworkdata) {
     try {
       loading.value = true;
 
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("tags")
         .select(`id, tag`);
 
@@ -111,7 +113,7 @@ export async function useUpdateTasks(project, deworkdata) {
     try {
       loading.value = true;
 
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("assignees")
         .select(`id, name`);
 
@@ -174,7 +176,7 @@ export async function useUpdateTasks(project, deworkdata) {
             updates.task_id = prevTaskId.value[j];
           }
         }
-        let { error } = await supabase.from("tasks").upsert(updates);
+        let { error } = await supabaseWithRole.from("tasks").upsert(updates);
 
         if (error) throw error;
       } catch (error) {
@@ -219,7 +221,7 @@ export async function useUpdateTasks(project, deworkdata) {
           }
         }
 
-        let { error } = await supabase.from("assignees").upsert(updates);
+        let { error } = await supabaseWithRole.from("assignees").upsert(updates);
 
         if (error) throw error;
       } catch (error) {
@@ -264,7 +266,7 @@ export async function useUpdateTasks(project, deworkdata) {
           }
         }
 
-        let { error } = await supabase.from("tags").upsert(updates);
+        let { error } = await supabaseWithRole.from("tags").upsert(updates);
 
         if (error) throw error;
       } catch (error) {
@@ -282,7 +284,7 @@ export async function useUpdateTasks(project, deworkdata) {
   await updateTasks();
   await updateTags();
   await updateAssignees();
-  const { sorted_data } = await useSortData();
+  const { sorted_data } = await useSortData(role);
   console.log(sorted_data.value);
   status2.value = "done";
 

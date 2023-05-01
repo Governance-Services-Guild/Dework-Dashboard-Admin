@@ -1,6 +1,7 @@
 <script setup>
+/* global process */
 import { ref, onMounted } from 'vue'
-import { supabase } from '../supabase'
+import { createSupabaseClient } from '../supabase'
 import { RouterLink } from 'vue-router'
 
 const loading = ref(true)
@@ -8,6 +9,9 @@ const full_name = ref('')
 const website = ref('')
 const avatar_url = ref('')
 const src = ref('')
+const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
+const ROLE_NAME = isNode ? process.env.VITE_ROLE_NAME : import.meta.env.VITE_ROLE_NAME;
+const supabaseWithRole = createSupabaseClient(ROLE_NAME);
 
 async function getProfile() {
     try {
@@ -26,7 +30,7 @@ async function getProfile() {
 const session = ref()
 
   onMounted(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabaseWithRole.auth.getSession().then(({ data }) => {
       session.value = data.session
       if (session.value) {
         getProfile()
@@ -35,7 +39,7 @@ const session = ref()
       }
     })
 
-    supabase.auth.onAuthStateChange((_, _session) => {
+    supabaseWithRole.auth.onAuthStateChange((_, _session) => {
       session.value = _session
     })
   })

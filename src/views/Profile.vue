@@ -1,25 +1,33 @@
 <script setup>
-  import { onMounted, ref } from 'vue'
-  import Account from '../components/Account.vue'
-  import Auth from '../components/Auth.vue'
-  import { supabase } from '../supabase'
+/* global process */
+import { onMounted, ref } from "vue";
+import Account from "../components/Account.vue";
+import Auth from "../components/Auth.vue";
+import { createSupabaseClient } from "../supabase";
 
-  const session = ref()
+const session = ref();
+const isNode =
+  typeof process !== "undefined" &&
+  process.release &&
+  process.release.name === "node";
+const ROLE_NAME = isNode
+  ? process.env.VITE_ROLE_NAME
+  : import.meta.env.VITE_ROLE_NAME;
+const supabaseWithRole = createSupabaseClient(ROLE_NAME);
 
-  onMounted(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      session.value = data.session
-    })
+onMounted(() => {
+  supabaseWithRole.auth.getSession().then(({ data }) => {
+    session.value = data.session;
+  });
 
-    supabase.auth.onAuthStateChange((_, _session) => {
-      session.value = _session
-    })
-  })
-
+  supabaseWithRole.auth.onAuthStateChange((_, _session) => {
+    session.value = _session;
+  });
+});
 </script>
 <template>
-    <div>
-        <Account v-if="session" :session="session" />
-        <Auth v-else />
-    </div>
+  <div>
+    <Account v-if="session" :session="session" />
+    <Auth v-else />
+  </div>
 </template>

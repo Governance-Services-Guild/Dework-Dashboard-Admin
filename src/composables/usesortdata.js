@@ -1,8 +1,8 @@
 import { ref } from "vue";
-import { supabase } from "../supabase";
+import { createSupabaseClient } from "../supabase";
 import { useGetData } from "../composables/usegetdata";
 
-export async function useSortData() {
+export async function useSortData(role) {
   const loading = ref(true);
   const { all_tasks } = await useGetData();
   let done = ref(0);
@@ -18,6 +18,8 @@ export async function useSortData() {
   const prevTags = ref([]);
   const prevNameId = ref([]);
   const prevNames = ref([]);
+
+  const supabaseWithRole = createSupabaseClient(role);
 
   async function sortData() {
     sorted_data.value["tasks"] = {};
@@ -67,7 +69,7 @@ export async function useSortData() {
     // still busy building and testing
     try {
       loading.value = true;
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("assignees")
         .select(`name`);
 
@@ -93,7 +95,7 @@ export async function useSortData() {
     // still busy building and testing
     try {
       loading.value = true;
-      let { data, error, status } = await supabase.from("tags").select(`tag`);
+      let { data, error, status } = await supabaseWithRole.from("tags").select(`tag`);
 
       if (error && status !== 406) throw error;
       if (data) {
@@ -127,7 +129,7 @@ export async function useSortData() {
       loading.value = true;
 
       // Fetch all data from the "tasks" table
-      let { data, error, status } = await supabase.from("tasks").select();
+      let { data, error, status } = await supabaseWithRole.from("tasks").select();
 
       if (error && status !== 406) throw error;
       console.log("data assignees.value", data, assignees.value);
@@ -165,7 +167,7 @@ export async function useSortData() {
     for (let i in tags.value) {
       try {
         loading.value = true;
-        let { data, error, status } = await supabase
+        let { data, error, status } = await supabaseWithRole
           .from("tasks")
           .select()
           .ilike("tags", `%${tags.value[i]}%`);
@@ -216,7 +218,7 @@ export async function useSortData() {
     try {
       loading.value = true;
 
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("tags")
         .select(`id, tag`);
 
@@ -250,6 +252,7 @@ export async function useSortData() {
           tasks_in_progress: sorted_data.value.taskTypes[j].tasks_in_progress,
           tasks_in_review: sorted_data.value.taskTypes[j].tasks_in_review,
           tasks_todo: sorted_data.value.taskTypes[j].tasks_todo,
+          updated_at: new Date(),
         };
 
         for (let i in prevTags.value) {
@@ -259,7 +262,7 @@ export async function useSortData() {
           }
         }
 
-        let { error } = await supabase.from("tags").upsert(updates);
+        let { error } = await supabaseWithRole.from("tags").upsert(updates);
 
         if (error) throw error;
       } catch (error) {
@@ -274,7 +277,7 @@ export async function useSortData() {
     try {
       loading.value = true;
 
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("assignees")
         .select(`id, name`);
 
@@ -304,9 +307,10 @@ export async function useSortData() {
           storypoints: sorted_data.value[prevNames.value[j]].storypoints,
           tasks: sorted_data.value[prevNames.value[j]].tasks,
           tasks_done: sorted_data.value[prevNames.value[j]].tasks_done,
+          updated_at: new Date(),
         };
 
-        let { error } = await supabase.from("assignees").upsert(updates);
+        let { error } = await supabaseWithRole.from("assignees").upsert(updates);
 
         if (error) throw error;
       } catch (error) {

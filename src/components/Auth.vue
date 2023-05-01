@@ -1,12 +1,16 @@
 <script setup>
+/* global process */
 import { ref } from "vue";
-import { supabase } from "../supabase";
+import { createSupabaseClient } from "../supabase";
 
 const loading = ref(false);
 const email = ref("");
+const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
+const ROLE_NAME = isNode ? process.env.VITE_ROLE_NAME : import.meta.env.VITE_ROLE_NAME;
+const supabaseWithRole = createSupabaseClient(ROLE_NAME);
 
 async function signInWithDiscord() {
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const { data, error } = await supabaseWithRole.auth.signInWithOAuth({
     provider: "discord",
   });
 }

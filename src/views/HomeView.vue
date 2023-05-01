@@ -11,6 +11,7 @@ const deworkdata = ref();
 const projectsR = ref([]);
 const projectNames = ref([]);
 const loading = ref(false);
+const projectName = ref('governance-guild')
 
 async function getProject() {
   const { projects } = await useGetProjects();
@@ -29,18 +30,14 @@ async function getDeworkData() {
   console.log(data2);
 }
 
-async function getData(project) {
+async function getData() {
   getDeworkData();
-  /*const { jsonData } = await useGetDework(project);
-  data.value = jsonData.value;
-  console.log("data.value", data.value);*/
 }
 
 onMounted(() => {
   console.log("Loaded");
   setTimeout(function () {
     console.log("Get it");
-    getProject();
   }, 1000);
 });
 
@@ -66,18 +63,14 @@ async function uploadProjectData(project) {
     <div v-else>
       <p>Home page</p>
       <button
-        v-for="title in projectNames"
-        :key="title"
-        @click="getData(title)"
+        @click="getData()"
       >
-        Get {{ title }} Data
+        Get {{ projectName }} Data
       </button>
       <button
-        v-for="title in projectNames"
-        :key="title"
-        @click="uploadProjectData(title)"
+        @click="uploadProjectData(projectName)"
       >
-        Upload {{ title }} Data
+        Upload {{ projectName }} Data
       </button>
     </div>
   </main>

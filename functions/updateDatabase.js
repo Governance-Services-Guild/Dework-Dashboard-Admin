@@ -1,3 +1,4 @@
+/* global process */
 // import axios from 'axios'
 import { supabase } from "../src/supabase";
 import { fetchWorkspaceTasks } from "../src/api/workspace";
@@ -5,12 +6,15 @@ import { useUpdateTasks } from "../src/composables/updatetasks";
 
 const deworkdata = {};
 const project = 'governance-guild';
+const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
+const ROLE_NAME = isNode ? process.env.VITE_ROLE_NAME : import.meta.env.VITE_ROLE_NAME;
+const SERVERLESS_FUNCTION_ROLE = ROLE_NAME;
 
 async function uploadData(project) {
   const deworkData = await fetchWorkspaceTasks();
   console.log("deworkData", deworkData.data);
   deworkdata.value = deworkData.data.getWorkspace.tasks;
-  const { status2 } = await useUpdateTasks(project, deworkdata.value);
+  const { status2 } = await useUpdateTasks(project, deworkdata.value, SERVERLESS_FUNCTION_ROLE);
   console.log("Upload", status2.value);
 }
 

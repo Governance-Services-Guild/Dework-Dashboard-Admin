@@ -1,10 +1,13 @@
 <script setup>
-  import { supabase } from '../supabase'
+  /* global process */
+  import { createSupabaseClient } from '../supabase'
   import { onMounted, ref, toRefs } from 'vue'
 
   const props = defineProps(['session'])
   const { session } = toRefs(props)
-
+  const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
+  const ROLE_NAME = isNode ? process.env.VITE_ROLE_NAME : import.meta.env.VITE_ROLE_NAME;
+  const supabaseWithRole = createSupabaseClient(ROLE_NAME);
   const loading = ref(true)
   const full_name = ref('')
   const website = ref('')
@@ -19,7 +22,7 @@
       loading.value = true
       const { user } = session.value
 
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from('profiles')
         .select(`full_name, avatar_url`)
         .eq('id', user.id)
@@ -51,7 +54,7 @@
         updated_at: new Date(),
       }
 
-      let { error } = await supabase.from('profiles').upsert(updates)
+      let { error } = await supabaseWithRole.from('profiles').upsert(updates)
 
       if (error) throw error
     } catch (error) {
@@ -62,7 +65,7 @@
   }
 
   async function signOut() {
-  const { error } = await supabase.auth.signOut()
+  const { error } = await supabaseWithRole.auth.signOut()
 }
 </script>
 

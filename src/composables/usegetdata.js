@@ -1,15 +1,16 @@
 import { ref } from "vue";
-import { supabase } from "../supabase";
+import { createSupabaseClient } from "../supabase";
 
-export async function useGetData() {
+export async function useGetData(role) {
   const loading = ref(true);
   const all_tasks = ref([]);
+  const supabaseWithRole = createSupabaseClient(role);
 
   async function getProjectData() {
     // still busy building and testing
     try {
       loading.value = true;
-      let { data, error, status } = await supabase
+      let { data, error, status } = await supabaseWithRole
         .from("tasks")
         .select(
           `task_id, storypoints, title, status, link, backlog, to_do, in_progress, in_review, done, dework_created_on, dework_completed_on, due_date, assignees, tags, description`
