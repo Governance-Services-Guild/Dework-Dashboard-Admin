@@ -1,10 +1,10 @@
 /* global process */
 import axios from 'axios';
 
-export async function fetchWorkspaceTasks() {
+export async function fetchWorkspaceTasks(workspace) {
     const query = `
     query GetWorkspaceTasksQuery {
-        getWorkspace(id: "f0cea521-d319-4f02-a20a-7439998dbf82") {
+        getWorkspace(id: "${workspace}") {
         id
         tasks {
           id

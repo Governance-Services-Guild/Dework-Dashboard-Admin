@@ -11,7 +11,10 @@ const deworkdata = ref();
 const projectsR = ref([]);
 const projectNames = ref([]);
 const loading = ref(false);
+const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
+const ROLE_NAME = isNode ? process.env.VITE_ROLE_NAME : import.meta.env.VITE_ROLE_NAME;
 const projectName = ref('governance-guild')
+const workspace = ref('f0cea521-d319-4f02-a20a-7439998dbf82')
 
 async function getProject() {
   const { projects } = await useGetProjects();
@@ -23,7 +26,7 @@ async function getProject() {
 }
 
 async function getDeworkData() {
-  const data = await fetchWorkspaceTasks();
+  const data = await fetchWorkspaceTasks(workspace.value);
   const taskId = "7475aab2-3d05-4ffa-9e3e-5e7f8f3d1f36";
   const data2 = await fetchTaskDetails(taskId);
   console.log(data);
@@ -42,10 +45,10 @@ onMounted(() => {
 });
 
 async function uploadData(project) {
-  const deworkData = await fetchWorkspaceTasks();
+  const deworkData = await fetchWorkspaceTasks(workspace.value);
   console.log("deworkData", deworkData.data);
   deworkdata.value = deworkData.data.getWorkspace.tasks;
-  const { status2 } = await useUpdateTasks(project, deworkdata.value);
+  const { status2 } = await useUpdateTasks(project, deworkdata.value, ROLE_NAME, workspace.value);
   console.log("Upload", status2.value);
 }
 

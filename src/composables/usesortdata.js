@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { createSupabaseClient } from "../supabase";
 import { useGetData } from "../composables/usegetdata";
 
-export async function useSortData(role) {
+export async function useSortData(role, workspace) {
   const loading = ref(true);
   const { all_tasks } = await useGetData();
   let done = ref(0);
@@ -71,7 +71,8 @@ export async function useSortData(role) {
       loading.value = true;
       let { data, error, status } = await supabaseWithRole
         .from("assignees")
-        .select(`name`);
+        .select(`name`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
       if (data) {
@@ -95,7 +96,10 @@ export async function useSortData(role) {
     // still busy building and testing
     try {
       loading.value = true;
-      let { data, error, status } = await supabaseWithRole.from("tags").select(`tag`);
+      let { data, error, status } = await supabaseWithRole
+        .from("tags")
+        .select(`tag`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
       if (data) {
@@ -129,7 +133,10 @@ export async function useSortData(role) {
       loading.value = true;
 
       // Fetch all data from the "tasks" table
-      let { data, error, status } = await supabaseWithRole.from("tasks").select();
+      let { data, error, status } = await supabaseWithRole
+        .from("tasks")
+        .select()
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
       console.log("data assignees.value", data, assignees.value);
@@ -170,6 +177,7 @@ export async function useSortData(role) {
         let { data, error, status } = await supabaseWithRole
           .from("tasks")
           .select()
+          .eq("workspace", workspace)
           .ilike("tags", `%${tags.value[i]}%`);
 
         if (error && status !== 406) throw error;
@@ -220,7 +228,8 @@ export async function useSortData(role) {
 
       let { data, error, status } = await supabaseWithRole
         .from("tags")
-        .select(`id, tag`);
+        .select(`id, tag`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
 
@@ -245,6 +254,7 @@ export async function useSortData(role) {
 
         let updates = {
           tag: j,
+          workspace: workspace,
           storypoints: sorted_data.value.taskTypes[j].storypoints,
           tasks: sorted_data.value.taskTypes[j].tasks,
           tasks_backlog: sorted_data.value.taskTypes[j].tasks_backlog,
@@ -279,7 +289,8 @@ export async function useSortData(role) {
 
       let { data, error, status } = await supabaseWithRole
         .from("assignees")
-        .select(`id, name`);
+        .select(`id, name`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
 
@@ -304,13 +315,16 @@ export async function useSortData(role) {
         let updates = {
           id: prevNameId.value[j],
           name: prevNames.value[j],
+          workspace: workspace,
           storypoints: sorted_data.value[prevNames.value[j]].storypoints,
           tasks: sorted_data.value[prevNames.value[j]].tasks,
           tasks_done: sorted_data.value[prevNames.value[j]].tasks_done,
           updated_at: new Date(),
         };
 
-        let { error } = await supabaseWithRole.from("assignees").upsert(updates);
+        let { error } = await supabaseWithRole
+          .from("assignees")
+          .upsert(updates);
 
         if (error) throw error;
       } catch (error) {

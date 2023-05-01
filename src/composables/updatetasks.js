@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { createSupabaseClient } from "../supabase";
 import { useSortData } from "../composables/usesortdata";
 
-export async function useUpdateTasks(project, deworkdata, role) {
+export async function useUpdateTasks(org, deworkdata, role, workspace) {
   const status2 = ref("");
   const loading = ref(true);
   const prevTagId = ref([]);
@@ -30,12 +30,14 @@ export async function useUpdateTasks(project, deworkdata, role) {
   const prevTitle = ref([]);
   const prevLink = ref([]);
   const deworkData = ref();
+  const deworkDataWorkspace = ref([]);
 
   async function sortData() {
     deworkData.value = deworkdata;
     //newData.value = jsondata;
     console.log("deworkData", deworkData.value);
     for (let j in deworkData.value) {
+      deworkDataWorkspace.value.push(deworkData.value[j].workspace.name)
       console.log("deworkData", deworkData.value[j].name);
       title.value.push(deworkData.value[j].name);
       link.value.push(deworkData.value[j].id);
@@ -65,7 +67,8 @@ export async function useUpdateTasks(project, deworkdata, role) {
 
       let { data, error, status } = await supabaseWithRole
         .from("tasks")
-        .select(`task_id, title, group, status, link`);
+        .select(`task_id, title, group, status, link`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
 
@@ -91,7 +94,8 @@ export async function useUpdateTasks(project, deworkdata, role) {
 
       let { data, error, status } = await supabaseWithRole
         .from("tags")
-        .select(`id, tag`);
+        .select(`id, tag`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
 
@@ -115,7 +119,8 @@ export async function useUpdateTasks(project, deworkdata, role) {
 
       let { data, error, status } = await supabaseWithRole
         .from("assignees")
-        .select(`id, name`);
+        .select(`id, name`)
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
 
@@ -147,7 +152,9 @@ export async function useUpdateTasks(project, deworkdata, role) {
           description: description.value[i],
           creator: creator.value[i],
           status: status.value[i],
-          group: project,
+          group: org,
+          workspace_name: deworkDataWorkspace.value[i],
+          workspace: workspace,
           due_date: due_date.value[i],
           dework_created_on: created_at.value[i],
           dework_completed_on: completed_at.value[i],
@@ -212,6 +219,7 @@ export async function useUpdateTasks(project, deworkdata, role) {
 
         let updates = {
           name: assigneest[j],
+          workspace: workspace
         };
 
         for (let i in prevNames.value) {
@@ -257,6 +265,7 @@ export async function useUpdateTasks(project, deworkdata, role) {
 
         let updates = {
           tag: tagst[j],
+          workspace: workspace
         };
 
         for (let i in prevTags.value) {
@@ -284,7 +293,7 @@ export async function useUpdateTasks(project, deworkdata, role) {
   await updateTasks();
   await updateTags();
   await updateAssignees();
-  const { sorted_data } = await useSortData(role);
+  const { sorted_data } = await useSortData(role, workspace);
   console.log(sorted_data.value);
   status2.value = "done";
 
