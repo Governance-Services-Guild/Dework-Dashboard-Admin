@@ -13,7 +13,7 @@ const projectNames = ref([]);
 const loading = ref(false);
 const isNode = typeof process !== "undefined" && process.release && process.release.name === "node";
 const ROLE_NAME = isNode ? process.env.VITE_ROLE_NAME : import.meta.env.VITE_ROLE_NAME;
-const projectName = ref('governance-guild')
+const projectName = ref('Governance Guild')
 const workspace = ref('f0cea521-d319-4f02-a20a-7439998dbf82')
 
 async function getProject() {
