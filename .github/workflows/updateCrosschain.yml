@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Trigger API
         run: |
-          curl -X POST "https://gg-dework-admin.netlify.app/.netlify/functions/updateCrossLeadGen" 
+          curl -X POST ${{ secrets.UPDATE_CROSS_LEAD_GEN }}
