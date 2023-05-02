@@ -160,28 +160,28 @@ export async function useUpdateTasks(org, deworkdata, role, workspace) {
           dework_completed_on: completed_at.value[i],
           updated_at: new Date(),
         };
-        if (status.value[i] == "BACKLOG" && prevStatus.value[i] != "BACKLOG") {
-          updates.backlog = "";
-          updates.backlog = new Date();
-        } else if (status.value[i] == "TODO" && prevStatus.value[i] != "TODO") {
-          updates.to_do = "";
-          updates.to_do = new Date();
-        } else if (status.value[i] == "IN_PROGRESS" && prevStatus.value[i] != "IN_PROGRESS") {
-          updates.in_progress = "";
-          updates.in_progress = new Date();
-        } else if (status.value[i] == "IN_REVIEW" && prevStatus.value[i] != "IN_REVIEW") {
-          updates.in_review = "";
-          updates.in_review = new Date();
-        } else if (status.value[i] == "DONE" && prevStatus.value[i] != "DONE") {
-          updates.done = "";
-          updates.done = new Date();
-        }
 
         for (let j in prevLink.value) {
           if (prevLink.value[j] == link.value[i]) {
             updates.task_id = "";
             updates.task_id = prevTaskId.value[j];
-          }
+            if (status.value[i] == "BACKLOG" && prevStatus.value[j] != "BACKLOG") {
+              updates.backlog = "";
+              updates.backlog = new Date();
+            } else if (status.value[i] == "TODO" && prevStatus.value[j] != "TODO") {
+              updates.to_do = "";
+              updates.to_do = new Date();
+            } else if (status.value[i] == "IN_PROGRESS" && prevStatus.value[j] != "IN_PROGRESS") {
+              updates.in_progress = "";
+              updates.in_progress = new Date();
+            } else if (status.value[i] == "IN_REVIEW" && prevStatus.value[j] != "IN_REVIEW") {
+              updates.in_review = "";
+              updates.in_review = new Date();
+            } else if (status.value[i] == "DONE" && prevStatus.value[j] != "DONE") {
+              updates.done = "";
+              updates.done = new Date();
+            }
+          } 
         }
         let { error } = await supabaseWithRole.from("tasks").upsert(updates);
 

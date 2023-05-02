@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { createSupabaseClient } from "../supabase";
 
-export async function useGetData(role) {
+export async function useGetData(role, workspace) {
   const loading = ref(true);
   const all_tasks = ref([]);
   const supabaseWithRole = createSupabaseClient(role);
@@ -15,7 +15,7 @@ export async function useGetData(role) {
         .select(
           `task_id, storypoints, title, status, link, backlog, to_do, in_progress, in_review, done, dework_created_on, dework_completed_on, due_date, assignees, tags, description`
         )
-        .eq("group", "governance-guild");
+        .eq("workspace", workspace);
 
       if (error && status !== 406) throw error;
       if (data) {

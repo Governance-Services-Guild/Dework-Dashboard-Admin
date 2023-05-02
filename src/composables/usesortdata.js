@@ -4,7 +4,7 @@ import { useGetData } from "../composables/usegetdata";
 
 export async function useSortData(role, workspace) {
   const loading = ref(true);
-  const { all_tasks } = await useGetData();
+  const { all_tasks } = await useGetData(role, workspace);
   let done = ref(0);
   let inprogress = ref(0);
   let todo = ref(0);
