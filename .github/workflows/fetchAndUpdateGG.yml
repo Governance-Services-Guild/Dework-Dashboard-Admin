@@ -14,14 +14,10 @@ jobs:
       - name: Trigger API
         id: step1
         run: |
-          OUTPUT=$(curl -s -X POST ${{ secrets.FETCH_GG_INTERNAL_OP}})
-          echo "API response: $OUTPUT"
-          echo "apiResponse=$OUTPUT" >> $GITHUB_ENV
+          curl -s -X POST ${{ secrets.FETCH_GG_INTERNAL_OP}} > output.json
 
       - name: Use API Response
         run: |
-          API_RESPONSE=${{ env.apiResponse }}
-          echo "Parsed API response: $API_RESPONSE"
+          API_RESPONSE=$(cat output.json)
           DATA=$(echo "$API_RESPONSE" | jq -r '.data')
-          echo "Parsed data: $DATA"
           curl -X POST ${{ secrets.UPDATE_GG_INTERNAL_OP}} -H 'Content-Type: application/json' -d "$DATA"
