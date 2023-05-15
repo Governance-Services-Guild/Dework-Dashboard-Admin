@@ -1,4 +1,4 @@
-name: Trigger GG Internal API
+name: Fetch and update GG Internal API
 
 on:
   workflow_dispatch:
@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Step 1: Trigger API
+      - name: Trigger API
         id: step1
         run: |
           OUTPUT=$(curl -s -X POST ${{ secrets.FETCH_GG_INTERNAL_OP}})
           echo "::set-output name=apiResponse::$OUTPUT"
 
-      - name: Step 2: Use API Response
+      - name: Use API Response
         run: |
           API_RESPONSE=${{ steps.step1.outputs.apiResponse }}
           DATA=$(echo $API_RESPONSE | jq -r '.data')
