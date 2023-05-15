@@ -1,4 +1,4 @@
-name: Trigger GG Internal API
+name: Fetch and update GG Internal API
 
 on:
   workflow_dispatch:
