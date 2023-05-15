@@ -20,4 +20,5 @@ jobs:
         run: |
           API_RESPONSE=$(cat output.json)
           DATA=$(echo "$API_RESPONSE" | jq -r '.data')
-          curl -X POST ${{ secrets.UPDATE_GG_INTERNAL_OP}} -H 'Content-Type: application/json' -d "$DATA"
+          echo "$DATA" > data.json
+          curl -X POST ${{ secrets.UPDATE_GG_INTERNAL_OP}} -H 'Content-Type: application/json' -d @data.json
