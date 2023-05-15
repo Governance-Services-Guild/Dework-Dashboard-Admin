@@ -11,7 +11,7 @@ async function uploadData(project, inputData) {
   // inputData is the data received from the first function
   console.log("Input data from first function:", inputData);
 
-  const { status2 } = await useUpdateTasks(project, inputData.getWorkspace.tasks, ROLE_NAME, workspace);
+  const { status2 } = await useUpdateTasks(project, inputData.data.getWorkspace.tasks, ROLE_NAME, workspace);
   console.log("Upload", status2.value);
 }
 
