@@ -14,11 +14,11 @@ jobs:
       - name: Step 1: Trigger API
         id: step1
         run: |
-          OUTPUT=$(curl -s -X POST ${{ secrets.UPDATE_GG_INTERNAL_OP}})
+          OUTPUT=$(curl -s -X POST ${{ secrets.FETCH_GG_INTERNAL_OP}})
           echo "::set-output name=apiResponse::$OUTPUT"
 
       - name: Step 2: Use API Response
         run: |
           API_RESPONSE=${{ steps.step1.outputs.apiResponse }}
           DATA=$(echo $API_RESPONSE | jq -r '.data')
-          curl -X POST 'https://your-backend-api-url/function2' -H 'Content-Type: application/json' -d "$DATA"
+          curl -X POST ${{ secrets.UPDATE_GG_INTERNAL_OP}} -H 'Content-Type: application/json' -d "$DATA"
