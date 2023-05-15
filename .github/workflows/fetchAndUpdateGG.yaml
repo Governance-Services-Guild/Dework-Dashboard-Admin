@@ -1,0 +1,24 @@
+name: Trigger GG Internal API
+
+on:
+  workflow_dispatch:
+  schedule:
+  # 22h00 UTC Tue and Sat – https://crontab.guru
+  - cron: 0 12 * * 6,2
+
+jobs:
+  trigger-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Step 1: Trigger API
+        id: step1
+        run: |
+          OUTPUT=$(curl -s -X POST ${{ secrets.UPDATE_GG_INTERNAL_OP}})
+          echo "::set-output name=apiResponse::$OUTPUT"
+
+      - name: Step 2: Use API Response
+        run: |
+          API_RESPONSE=${{ steps.step1.outputs.apiResponse }}
+          DATA=$(echo $API_RESPONSE | jq -r '.data')
+          curl -X POST 'https://your-backend-api-url/function2' -H 'Content-Type: application/json' -d "$DATA"
